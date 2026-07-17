@@ -1,5 +1,6 @@
 import React from "react";
 import { ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router";
 
 const Difficulty = [
   {
@@ -26,6 +27,13 @@ const Difficulty = [
 ];
 
 const Category = () => {
+  const navigate = useNavigate();
+
+  const handleCategoryClick = (level) => {
+    console.log(level);
+    navigate("/game-play");
+  };
+
   return (
     <div className="flex flex-col items-center justify-center  h-screen ">
       <div className="border bg-secondary-background border-border p-8 rounded-lg text-center w-3xl max-w-5xl">
@@ -45,7 +53,7 @@ const Category = () => {
           <div>
             {Difficulty.map((items) => (
               <div
-                onClick={() => console.log(items.level)}
+                onClick={() => handleCategoryClick(items)}
                 key={items.level}
                 className="border border-border px-5 transition-transform duration-150 ease-out hover:scale-[1.01] gap-3 hover:scale-100 py-4 mb-4 rounded-xl cursor-pointer hover:border-yellow flex"
               >
