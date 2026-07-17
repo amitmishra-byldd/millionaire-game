@@ -18,14 +18,21 @@ const Home = () => {
     fetchData();
   }, []);
 
-  console.log(data);
-
   if (!data || !data.results) {
-    return <></>;
+    return (
+      <div className="h-screen flex items-center justify-self-center">
+        <p className="font-bold text-2xl">loading...</p>
+      </div>
+    );
   }
+
+  console.log("HELLO");
 
   const question = data.results[currentIndex];
   const options = [question.correct_answer, ...question.incorrect_answers];
+
+  const shuffled = options.sort(() => Math.random() - 0.5);
+  // console.log(shuffled);
 
   const getTargetValue = (option) => {
     if (option === question.correct_answer) {
@@ -41,21 +48,25 @@ const Home = () => {
   if (gameOver) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p className="border text-2xl px-10 py-5 rounded-md">Sorry, Game is Over</p>
+        <p className="border text-2xl px-10 py-5 rounded-md">
+          Sorry, Game is Over
+        </p>
       </div>
     );
   }
 
   if (win) {
     return (
-       <div className="flex items-center justify-center h-screen">
-        <p className="border text-2xl px-10 py-5 rounded-md">Hurry, You win the game</p>
+      <div className="flex items-center justify-center h-screen">
+        <p className="border text-2xl px-10 py-5 rounded-md">
+          Hurry, You win the game
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="flex gap-10 m-20 border">
+    <div className="flex gap-10 m-20 borde ">
       <div className="flex flex-1 flex-col items-center justify-center  ">
         <h1 className="text-2xl font-bold my-2 pb-6">
           Who Wants To Be Millionairs
@@ -68,7 +79,7 @@ const Home = () => {
             <p className="py-2 text-2xl font-normal">{question.question}</p>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {options.map((option, index) => (
+            {shuffled.map((option, index) => (
               <button
                 onClick={() => getTargetValue(option)}
                 key={index}
@@ -79,16 +90,6 @@ const Home = () => {
             ))}
           </div>
         </div>
-        {/* {gameOver && (
-          <div>
-            <p>Sorry, Game Over</p>
-          </div>
-        )}
-        {win && (
-          <div>
-            <p>Hurry, You won</p>
-          </div>
-        )} */}
       </div>
       <CashPrize currentIndex={currentIndex} />
     </div>

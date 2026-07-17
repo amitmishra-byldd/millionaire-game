@@ -1,11 +1,10 @@
-import { useState } from "react";
-import Home from "./components/Home";
+import Category from "./components/category-select/Category";
 
 function App() {
   return (
-    <>
-      <Home />
-    </>
+    <div>
+      <Category />
+    </div>
   );
 }
 
