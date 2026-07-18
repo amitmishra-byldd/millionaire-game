@@ -29,9 +29,9 @@ const Difficulty = [
 const Category = () => {
   const navigate = useNavigate();
 
-  const handleCategoryClick = (level) => {
-    console.log(level);
-    navigate("/game-play");
+  const handleCategoryClick = (items) => {
+    console.log(items.level);
+    navigate("/game-play", {state:{level: items.level}});
   };
 
   return (

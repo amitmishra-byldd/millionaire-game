@@ -5,21 +5,29 @@ const Prize = [
   1000000,
 ];
 
-const PrizeLadder = () => {
+const PrizeLadder = ({ level }) => {
+  console.log(level, "and ", Prize.length);
   return (
     <div className="w-sm ">
       <h1 className="text-gold/80 uppercase font-extrabold tracking-widest py-3">
         PrizeLadder
       </h1>
       <div className="rounded-lg border border-border overflow-hidden">
-        {Prize.reverse().map((prize, index) => (
-          <div key={index} className=" border-b bg-tertary-background border-border last:border-none">
-            <div className="flex justify-between items-center px-5 py-2">
-              <span className="text-text-secondary text-xs">{Prize.length - index}</span>
-              <span className="text-white text-sm">${prize}</span>
+        {Prize.map((prize, index) => {
+          return (
+            <div
+              key={index}
+              className={`border-b  border-border last:border-none ${level === index ? "bg-yellow/20" : "bg-tertary-background"} `}
+            >
+              <div className="flex justify-between items-center px-5 py-2">
+                <span className="text-text-secondary text-xs">
+                  {index+1}
+                </span>
+                <span className="text-white text-sm">${prize}</span>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
