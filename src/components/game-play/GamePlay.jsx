@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from "react";
+import React, { use, useEffect, useState, useMemo } from "react";
 import PrizeLadder from "./PrizeLadder";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router";
@@ -38,6 +38,20 @@ const GamePlay = () => {
     setCountDown(timer);
   }, [position]);
 
+  // countdown
+  useEffect(() => {
+    if (win || loss || !data) return;
+
+    if (countdown <= 0) {
+      setLoss(true);
+      return;
+    }
+
+    const id = setTimeout(() => setCountDown((timer) => timer - 1), 1000);
+
+    return () => clearInterval(id);
+  }, [countdown, loss, win, data]);
+
   useEffect(() => {
     if (win) navigate("/win", { state: { prize: Prize[position] } });
   }, [win, navigate]);
@@ -47,13 +61,22 @@ const GamePlay = () => {
     if (loss) navigate("/loss", { state: { prize } });
   }, [loss, navigate]);
 
-  if (!data || !data.results) {
-    return <></>;
-  }
   const question = data?.results[position];
   // console.log("results", data.results.length);
 
-  const Option = [question.correct_answer, ...question.incorrect_answers];
+  const shuffled = useMemo(() => {
+    if (!question) return [];
+    const options = [question.correct_answer, ...question.incorrect_answers];
+    return options.sort(() => Math.random() - 0.5);
+  }, [question]);
+
+  if (!data || !data.results) {
+    return (
+      <div className="h-screen flex items-center justify-self-center">
+        <p className="font-bold text-2xl text-white">loading...</p>
+      </div>
+    );
+  }
 
   const handleOptions = (item) => {
     if (item === question.correct_answer) {
@@ -85,8 +108,14 @@ const GamePlay = () => {
                   ${Prize[position]}
                 </span>
               </div>
-              <div className=" text-white text-xl bg-tertary-background w-15 h-15 flex items-center justify-center shrink-0 rounded-full">
-                11
+              <div
+                className={`text-xl w-15 h-15 flex items-center justify-center shrink-0 rounded-full transition-colors ${
+                  countdown <= 5
+                    ? "bg-red-500/20 text-red-400"
+                    : "bg-green text-white"
+                }`}
+              >
+                {countdown}
               </div>
             </div>
             <div className="w-full flex flex-col items-center justify-center gap-10">
@@ -99,7 +128,7 @@ const GamePlay = () => {
               </p>
 
               <div className="grid grid-cols-2 text-start w-full gap-3">
-                {Option.map((item, index) => (
+                {shuffled.map((item, index) => (
                   <div
                     onClick={() => handleOptions(item)}
                     key={index}
