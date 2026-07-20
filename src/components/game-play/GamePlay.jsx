@@ -10,6 +10,14 @@ const Prize = [
   1000000,
 ];
 
+const categories = [
+  { id: 9, name: "General Knowledge" },
+  { id: 17, name: "Science & Nature" },
+  { id: 18, name: "Computer" },
+  { id: 19, name: "Mathematics" },
+  { id: 21, name: "Sports" },
+];
+
 const GamePlay = () => {
   const location = useLocation();
   const difficulty = location.state?.level?.toLowerCase() || "easy";
@@ -22,23 +30,27 @@ const GamePlay = () => {
   const [win, setWin] = useState(false);
   const [loss, setLoss] = useState(false);
   const [countdown, setCountDown] = useState(timer);
+  const [selectedValue, setSelectedValue] = useState("9");
+
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [isAnswered, setIsAnswered] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       const response = await axios.get(
-        `https://opentdb.com/api.php?amount=12&category=9&difficulty=${difficulty}&type=multiple`,
+        `https://opentdb.com/api.php?amount=12&category=${selectedValue}&difficulty=${difficulty}&type=multiple`,
       );
       setData(response.data);
       // console.log(response.data);
     };
     fetchData();
-  }, []);
+  }, [selectedValue, difficulty]);
 
   useEffect(() => {
     setCountDown(timer);
   }, [position]);
 
-  // countdown
+  countdown;
   useEffect(() => {
     if (win || loss || !data) return;
 
@@ -78,16 +90,32 @@ const GamePlay = () => {
     );
   }
 
+  // const Options = [question.correct_answer, ...question.incorrect_answers];
+
   const handleOptions = (item) => {
-    if (item === question.correct_answer) {
-      if (position === data.results.length - 1) {
-        setWin(true);
+    if (isAnswered) return;
+
+    setSelectedAnswer(item);
+    setIsAnswered(true);
+
+    setTimeout(() => {
+      if (item === question.correct_answer) {
+        if (position === data.results.length - 1) {
+          setWin(true);
+        } else {
+          setPosition((prev) => prev + 1);
+        }
       } else {
-        setPosition((prev) => prev + 1);
+        setLoss(true);
       }
-    } else {
-      setLoss(true);
-    }
+
+      setSelectedAnswer(null);
+      setIsAnswered(false);
+    }, 1500);
+  };
+
+  const handleSelectedValue = (e) => {
+    setSelectedValue(e.target.value);
   };
 
   return (
@@ -99,14 +127,29 @@ const GamePlay = () => {
         <div className="flex gap-20">
           <div className="flex-1 space-y-8">
             <div className="flex gap-3">
-              <div className="border h-15 justify-center flex-1 border-border flex items-start flex-col py-2 px-4 rounded-xl bg-tertary-background">
-                <span className="text-text-secondary uppercase text-sm">
-                  Playing For
-                </span>
-                <span className="text-xl font-semibold text-gold">
-                  {" "}
-                  ${Prize[position]}
-                </span>
+              <div className="border h-15 justify-between flex-1 border-border flex items-center  py-2 px-4 rounded-xl bg-tertary-background">
+                <div className="flex flex-col items-start">
+                  <span className="text-text-secondary uppercase text-sm">
+                    Playing For
+                  </span>
+                  <span className="text-xl font-semibold text-gold">
+                    {" "}
+                    ${Prize[position]}
+                  </span>
+                </div>
+                <div>
+                  <select
+                    value={selectedValue}
+                    onChange={handleSelectedValue}
+                    className="bg-tertary-background text-white border border-border rounded-lg px-3 py-2 outline-none focus:outline-none focus:ring-0 focus:border-yellow"
+                  >
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div
                 className={`text-xl w-15 h-15 flex items-center justify-center shrink-0 rounded-full transition-colors ${
@@ -128,15 +171,29 @@ const GamePlay = () => {
               </p>
 
               <div className="grid grid-cols-2 text-start w-full gap-3">
-                {shuffled.map((item, index) => (
-                  <div
-                    onClick={() => handleOptions(item)}
-                    key={index}
-                    className="border bg-tertary-background border-border hover:border-yellow cursor-pointer transition-all duration-150 ease-out hover:scale-[1.01]  text-white font-semibold rounded-xl py-3 px-4 items-start w-full"
-                  >
-                    <p>{item}</p>
-                  </div>
-                ))}
+                {shuffled.map((item, index) => {
+                  const isCorrect = item === question.correct_answer;
+                  const isSelected = item === selectedAnswer;
+
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => handleOptions(item)}
+                      className={` border text-white rounded-xl py-3 px-4 font-semibold transition-all cursor-pointer 
+                        ${
+                          !isAnswered
+                            ? "bg-tertary-background border-border hover:border-yellow"
+                            : isCorrect
+                              ? "bg-green text-white"
+                              : isSelected
+                                ? "bg-red  text-white"
+                                : "bg-tertary-background border-border text-white opacity-60"
+                        }`}
+                    >
+                      <p>{item}</p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
